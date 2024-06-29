@@ -35,6 +35,7 @@ class mssageError {
     static final String error5 = "File already exists - File name exists on WRQ.";
     static final String error6 = " User not logged in - Any opcode received before Login completes.";
     static final String error7 = "User already logged in - Login username already connected.";
+    static final String error8 = "There's no files !";
 
 }
 
@@ -265,6 +266,9 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         else if (error == 7){
             errorMessage = mssageError.error7;
         }
+        else if (error == 8){
+            errorMessage = mssageError.error8;
+        }
         
         byte[] errorInBytes = errorMessage.getBytes(StandardCharsets.UTF_8);
         byte[] finalMessage = new byte[errorInBytes.length + 5];
@@ -363,23 +367,26 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             String path = "Skeleton/server/Files";
             File direPath = new File(path) ;
             String[] filesList = direPath.list();
-            
-            ArrayList<Byte> bytelist = new ArrayList<>();
-            for(String fileName : filesList){
-                byte[] fileNameByte = fileName.getBytes(StandardCharsets.UTF_8); 
-                for(byte nextByte : fileNameByte){
-                    bytelist.add(nextByte);
+            if(filesList.length == 0){
+                sendError(8);
+            }
+            else{
+                ArrayList<Byte> bytelist = new ArrayList<>();
+                for(String fileName : filesList){
+                    byte[] fileNameByte = fileName.getBytes(StandardCharsets.UTF_8); 
+                    for(byte nextByte : fileNameByte){
+                        bytelist.add(nextByte);
+                    }
+                    bytelist.add((byte)0);
                 }
-                bytelist.add((byte)0);
-            }
-            bytelist.remove(bytelist.size() - 1 );
+                bytelist.remove(bytelist.size() - 1 );
 
-            outBuffer = bytelist;
-            numBlockLEFT = outBuffer.size() / MAX_PACKET_SIZE;
-            sizeOfLastBlock = outBuffer.size() % MAX_PACKET_SIZE;
-            numBlockLEFT++;
-                
-            }
+                outBuffer = bytelist;
+                numBlockLEFT = outBuffer.size() / MAX_PACKET_SIZE;
+                sizeOfLastBlock = outBuffer.size() % MAX_PACKET_SIZE;
+                numBlockLEFT++;
+            } 
+        }
 
             sendDataBlock(1);
             

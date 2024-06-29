@@ -64,11 +64,11 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
                 } 
             }
         }
-    return null; // Not yet complete
+    return null; 
 }
 
     @Override
-    public byte[] encode(byte[] message) {                   //need to impliment
+    public byte[] encode(byte[] message) {                   
         return message;
         
     }
